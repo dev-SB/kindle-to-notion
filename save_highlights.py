@@ -3,8 +3,11 @@ import os
 import re
 import sys
 
+from pyfiglet import Figlet
+
 from constants import KINDLE_DIRECTORY, HIGHLIGHT_SEPARATOR
-from upload_to_notion import read_write_library, upload_to_notion
+from upload_to_notion import upload_to_notion
+from utilities import print_success, print_failure, print_process, print_name, read_write_library
 
 
 def parse_reading(text):
@@ -53,13 +56,19 @@ def read_kindle(library):
 
 
 def main():
+    f = Figlet(font='contessa')
+    print_name(f.renderText('Kindle-To-Notion'))
+    print_process('Reading Kindle....')
     lib = read_write_library('r')
     try:
         lib = read_kindle(lib)
     except FileNotFoundError as e:
-        sys.exit('Please connect Kindle.')
-    read_write_library('w', lib)
-    upload_to_notion()
+        print_failure('Please connect Kindle and rerun the script.')
+        sys.exit()
+    path = read_write_library('w', lib)
+    print_success(f'Saved Kindle Highlights in {path}')
+    upload_to_notion(lib)
+    print_success('Upload Successful')
 
 
 if '__main__' == __name__:

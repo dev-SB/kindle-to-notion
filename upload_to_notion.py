@@ -1,29 +1,17 @@
 import json
 import os
-from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
 from tqdm import tqdm
 
-from constants import NOTION_URL, LIBRARY_FILE, DATABASE_KEYWORD, BLOCK_KEYWORD, NEW_HIGHLIGHT_JSON_FILE, DATA_FOLDER
+from constants import NOTION_URL, DATABASE_KEYWORD, BLOCK_KEYWORD, NEW_HIGHLIGHT_JSON_FILE
+from utilities import print_success, print_failure, print_process, read_write_library
 
 load_dotenv()
 
 INTEGRATION_KEY = os.getenv('NOTION_INTEGRATION_KEY')
 DATABASE_ID = os.getenv('NOTION_DATABASE_ID')
-
-
-def read_write_library(operation, lib=None):
-    path = os.path.join(DATA_FOLDER, LIBRARY_FILE)
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    if not os.path.exists(path):
-        with open(path, 'w') as library:
-            json.dump(list(), library)
-    with open(path, operation, encoding='utf8') as library:
-        if operation == 'r':
-            return json.load(library)
-        json.dump(lib, library, ensure_ascii=False)
 
 
 def convert_json(response):
@@ -50,9 +38,12 @@ def query_page_highlights(page_id):
 
 
 def get_highlight_json(highlight):
-    with open(NEW_HIGHLIGHT_JSON_FILE, 'r') as f:
-        data = json.load(f)
-    data['bulleted_list_item']['text'][0]['text']['content'] = highlight
+    try:
+        with open(NEW_HIGHLIGHT_JSON_FILE, 'r') as f:
+            data = json.load(f)
+        data['bulleted_list_item']['text'][0]['text']['content'] = highlight
+    except FileNotFoundError:
+        print_failure("Could not find new_highlight_format.json file.")
     return data
 
 
@@ -69,7 +60,7 @@ def save_highlights_notion(highlights, page_id):
 
 def process_notion_lib(notion_lib):
     notion_db_list = {}
-    for book in notion_lib['results']:
+    for book in tqdm(notion_lib['results']):
         title_text = book['properties']['Name']['title']
         if len(title_text) > 0:
             title = title_text[0]['text']['content']
@@ -78,6 +69,7 @@ def process_notion_lib(notion_lib):
 
 
 def process_notion_highlight(book_highlights):
+    print_process('Processing Notion Highlights...')
     highlights = []
     for res in book_highlights['results']:
         highlights.append(res['bulleted_list_item']
@@ -103,10 +95,11 @@ def get_notion_highlights(notion_lib):
     return notion_lib
 
 
-def upload_to_notion():
-    lib = read_write_library('r')
+def upload_to_notion(lib):
+    print_process('Reading Notion Library...')
     notion_lib = get_notion_highlights(process_notion_lib(query_notion_db()))
     lib = merge_lib_notion_lib(lib, notion_lib)
+    print_process('Uploading to Notion...')
     for book in tqdm(lib):
         if 'notion_id' in book.keys():
             status = save_highlights_notion(
@@ -115,3 +108,4 @@ def upload_to_notion():
                 for highlight in book['highlights']:
                     highlight['saved'] = True
                 read_write_library('w', lib)
+    
