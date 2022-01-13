@@ -1,0 +1,25 @@
+{
+    "object": "block",
+    "has_children": false,
+    "archived": false,
+    "type": "bulleted_list_item",
+    "bulleted_list_item": {
+        "text": [
+            {
+                "type": "text",
+                "text": {
+                    "content": "",
+                    "link": null
+                },
+                "annotations": {
+                    "bold": false,
+                    "italic": false,
+                    "strikethrough": false,
+                    "underline": false,
+                    "code": false,
+                    "color": "default"
+                }
+            }
+        ]
+    }
+}

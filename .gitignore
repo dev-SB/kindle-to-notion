@@ -1,0 +1,7 @@
+.ipynb_checkpoints
+.vscode
+data
+venv
+.env
+__pycache__
+.idea

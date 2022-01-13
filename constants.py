@@ -1,0 +1,10 @@
+KINDLE_DIRECTORY = '/Volumes/Kindle/documents'
+HIGHLIGHT_SEPARATOR = "=========="
+LIBRARY_FILE = 'library.json'
+NOTION_URL = 'https://api.notion.com/v1/'
+DATABASE_KEYWORD = 'databases/'
+PAGE_KEYWORD = 'pages/'
+BLOCK_KEYWORD = 'blocks/'
+NEW_HIGHLIGHT_JSON_FILE = 'new_highlight_format.json'
+DATA_FOLDER = 'data'
+DB_FILE = 'db.json'
