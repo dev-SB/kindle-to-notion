@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from tqdm import tqdm
 
 from constants import NOTION_URL, DATABASE_KEYWORD, BLOCK_KEYWORD, NEW_HIGHLIGHT_JSON_FILE
-from utilities import print_success, print_failure, print_process, read_write_library
+from utilities import print_failure, print_process, read_write_library
 
 load_dotenv()
 
@@ -60,7 +60,7 @@ def save_highlights_notion(highlights, page_id):
 
 def process_notion_lib(notion_lib):
     notion_db_list = {}
-    for book in tqdm(notion_lib['results']):
+    for book in notion_lib['results']:
         title_text = book['properties']['Name']['title']
         if len(title_text) > 0:
             title = title_text[0]['text']['content']
@@ -69,7 +69,6 @@ def process_notion_lib(notion_lib):
 
 
 def process_notion_highlight(book_highlights):
-    print_process('Processing Notion Highlights...')
     highlights = []
     for res in book_highlights['results']:
         highlights.append(res['bulleted_list_item']
@@ -89,7 +88,8 @@ def merge_lib_notion_lib(lib, notion_lib):
 
 
 def get_notion_highlights(notion_lib):
-    for book in notion_lib.values():
+    print_process('Processing Notion Highlights...')
+    for book in tqdm(notion_lib.values()):
         book['highlights'] = process_notion_highlight(
             query_page_highlights(book['id']))
     return notion_lib
@@ -108,4 +108,3 @@ def upload_to_notion(lib):
                 for highlight in book['highlights']:
                     highlight['saved'] = True
                 read_write_library('w', lib)
-    

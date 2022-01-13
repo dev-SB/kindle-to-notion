@@ -8,7 +8,7 @@ from constants import LIBRARY_FILE, DATA_FOLDER
 
 print_success = lambda text: cprint(text, 'green', attrs=['blink'])
 print_failure = lambda text: cprint(text, 'red', attrs=['bold'])
-print_process = lambda text: cprint(text, 'cyan',attrs=['bold'])
+print_process = lambda text: cprint(text, 'cyan', attrs=['bold'])
 print_name = lambda text: cprint(text, 'yellow', attrs=['bold'])
 
 
