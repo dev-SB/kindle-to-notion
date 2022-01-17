@@ -1,15 +1,17 @@
 import json
 import os
 from pathlib import Path
-
+import re
+import string
 from termcolor import cprint
 
 from constants import LIBRARY_FILE, DATA_FOLDER
 
-print_success = lambda text: cprint(text, 'green', attrs=['blink'])
-print_failure = lambda text: cprint(text, 'red', attrs=['bold'])
-print_process = lambda text: cprint(text, 'cyan', attrs=['bold'])
-print_name = lambda text: cprint(text, 'yellow', attrs=['bold'])
+
+def print_success(text): return cprint(text, 'green', attrs=['blink'])
+def print_failure(text): return cprint(text, 'red', attrs=['bold'])
+def print_process(text): return cprint(text, 'cyan', attrs=['bold'])
+def print_name(text): return cprint(text, 'yellow', attrs=['bold'])
 
 
 def read_write_library(operation, lib=None):
@@ -23,3 +25,8 @@ def read_write_library(operation, lib=None):
             return json.load(library)
         json.dump(lib, library, ensure_ascii=False)
     return path
+
+
+def simplify_string(og_string):
+    simple_title = re.sub(rf"[{string.punctuation}]", "", og_string)
+    return simple_title.lower().replace(' ', '').strip()

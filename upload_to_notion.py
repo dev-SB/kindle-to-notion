@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from tqdm import tqdm
 
 from constants import NOTION_URL, DATABASE_KEYWORD, BLOCK_KEYWORD, NEW_HIGHLIGHT_JSON_FILE
-from utilities import print_failure, print_process, read_write_library
+from utilities import print_failure, print_process, read_write_library, simplify_string
 
 load_dotenv()
 
@@ -64,7 +64,7 @@ def process_notion_lib(notion_lib):
         title_text = book['properties']['Name']['title']
         if len(title_text) > 0:
             title = title_text[0]['text']['content']
-            notion_db_list[title] = {'title': title, 'id': book['id']}
+            notion_db_list[simplify_string(title)] = {'title': title, 'id': book['id']}
     return notion_db_list
 
 
@@ -72,16 +72,16 @@ def process_notion_highlight(book_highlights):
     highlights = []
     for res in book_highlights['results']:
         highlights.append(res['bulleted_list_item']
-                          ['text'][0]['text']['content'])
+                        ['text'][0]['text']['content'])
     return highlights
 
 
 def merge_lib_notion_lib(lib, notion_lib):
     for book in lib:
-        if notion_lib.get(book['title'], -1) != -1:
-            book['notion_id'] = notion_lib[book['title']]['id']
+        if notion_lib.get(book['simple_title'], -1) != -1:
+            book['notion_id'] = notion_lib[book['simple_title']]['id']
             for highlight in book['highlights']:
-                if not highlight['saved'] and highlight['text'] in notion_lib[book['title']]['highlights']:
+                if not highlight['saved'] and highlight['text'] in notion_lib[book['simple_title']]['highlights']:
                     highlight['saved'] = True
     read_write_library('w', lib)
     return lib

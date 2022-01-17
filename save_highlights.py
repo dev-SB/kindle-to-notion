@@ -2,12 +2,13 @@
 import os
 import re
 import sys
+import string
 
 from pyfiglet import Figlet
 
 from constants import KINDLE_DIRECTORY, HIGHLIGHT_SEPARATOR
 from upload_to_notion import upload_to_notion
-from utilities import print_success, print_failure, print_process, print_name, read_write_library
+from utilities import print_success, print_failure, print_process, print_name, read_write_library, simplify_string
 
 
 def parse_reading(text):
@@ -20,25 +21,26 @@ def parse_reading(text):
             book_title = book_name_author.replace(
                 match[-1], '').strip()[:-2][1:]
             author = match[-1]
-            return book_title.strip(), author, highlight
+            book_title = book_title.strip()
+            return book_title, author, highlight
     return None, None, None
 
 
-def new_book(book_title, author):
+def new_book(book_title, author, simple_title):
     book = {'title': book_title, 'author': author,
-            'highlights': []}
+            'highlights': [], 'simple_title': simple_title}
     return book
 
 
-def add_book(book_title, author, highlight, library):
+def add_book(book_title, author, highlight, library, simple_title):
     for book in library:
-        if book['title'] == book_title:
+        if book['simple_title'] == simple_title:
             for highlights in book['highlights']:
                 if highlights['text'] == highlight:
                     return library
             book['highlights'].append({'text': highlight, 'saved': False})
             return library
-    book = new_book(book_title, author)
+    book = new_book(book_title, author, simple_title)
     book['highlights'].append({'text': highlight, 'saved': False})
     library.append(book)
     return library
@@ -49,9 +51,11 @@ def read_kindle(library):
         readings = file.read()
     texts = readings.split(HIGHLIGHT_SEPARATOR)
     for text in texts:
-        book_title, author, highlight = parse_reading(text.strip())
+        book_title, author, highlight = parse_reading(
+            text.strip())
         if book_title:
-            library = add_book(book_title, author, highlight, library)
+            library = add_book(book_title, author, highlight,
+                               library, simplify_string(book_title))
     return library
 
 
